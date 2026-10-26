@@ -1,10 +1,12 @@
+```yaml
 name: Build Android APK
 
 on:
   workflow_dispatch:
   push:
-    branches: [ "main", "master" ]
-    tags: [ "v*" ]
+    branches:
+      - main
+      - master
 
 permissions:
   contents: read
@@ -12,9 +14,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_HOME: /usr/local/lib/android/sdk
-      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -30,13 +30,11 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      # Avoid android-actions/setup-android@v3, which in this run
-      # attempted to install the removed SDK package named "tools".
-      - name: Accept Android SDK licenses
-        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Install Android platform
-        run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Build APK
         run: gradle --no-daemon assembleDebug
@@ -50,9 +48,4 @@ jobs:
           name: SCHOOLO-APK
           path: SCHOOLO.apk
           if-no-files-found: error
-
-      - name: Attach APK to GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: SCHOOLO.apk
+```
