@@ -47,4 +47,3 @@ jobs:
           name: SCHOOLO-APK
           path: SCHOOLO.apk
           if-no-files-found: error
-```
