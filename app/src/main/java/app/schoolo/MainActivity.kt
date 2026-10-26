@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -83,13 +84,13 @@ class MainActivity : ComponentActivity() {
 fun SchooloApp(context: Context) {
     val prefs = remember { context.getSharedPreferences("schoolo", Context.MODE_PRIVATE) }
     val schedule = remember {
-        mutableStateListOf<MutableList<Lesson>>().apply {
+        mutableStateListOf<SnapshotStateList<Lesson>>().apply {
             val raw = prefs.getString("schedule", null)
             if (raw != null) {
                 try {
                     val arr = JSONArray(raw)
                     for (d in 0 until 7) {
-                        val day = mutableListOf<Lesson>()
+                        val day = mutableStateListOf<Lesson>()
                         val items = arr.optJSONArray(d) ?: JSONArray()
                         for (i in 0 until items.length()) {
                             val o = items.getJSONObject(i)
@@ -100,7 +101,7 @@ fun SchooloApp(context: Context) {
                 } catch (_: Exception) { clear() }
             }
             if (isEmpty()) {
-                repeat(7) { add(mutableListOf()) }
+                repeat(7) { add(mutableStateListOf<Lesson>()) }
                 this[0].addAll(listOf(
                     Lesson("Математика", "214", "08:30", "09:15"),
                     Lesson("Русский язык", "105", "09:25", "10:10"),
